@@ -1,11 +1,14 @@
 define(
 	[
-		'dojo/_base/declare', 
-		'jimu/BaseWidget',
+    'dojo/_base/declare', 
+    "dojo/_base/lang",
+    'jimu/BaseWidget',
+    "esri/layers/FeatureLayer",
 		"esri/map",
-        "esri/toolbars/draw",
-        "esri/toolbars/edit"],
-  function(declare, BaseWidget, Map, Draw, Edit) {
+    "esri/toolbars/draw",
+    "esri/toolbars/edit"
+  ],
+  function(declare, lang, BaseWidget, FeatureLayer, Map, Draw, Edit) {
     //To create a widget, you need to derive from BaseWidget.
     return declare([BaseWidget], {
       // Custom widget code goes here
@@ -15,7 +18,7 @@ define(
       //this property is set by the framework when widget is loaded.
       name: 'MultiPointEditor',
 
-
+      multipoints: null,
       //methods to communication with app container:
 
       // postCreate: function() {
@@ -23,11 +26,16 @@ define(
       //   console.log('postCreate');
       // },
 
-       startup: function() {
+      startup: function() {
         this.inherited(arguments);
-        //this.mapIdNode.innerHTML = 'map id:' + this.map.id;
+        console.log(this.map);
+        this.multipoint = new FeatureLayer(
+          "https://services1.arcgis.com/vY6WuhLW0HkFe6Fl/arcgis/rest/services/Multipoints_Editing/FeatureServer/0"
+        );
+
+        this.makeEditable();
         console.log('startup');
-       },
+      },
 
       // onOpen: function(){
       //   console.log('onOpen');
@@ -61,6 +69,14 @@ define(
       // resize: function(){
       //   console.log('resize');
       // }
+
+
+      makeEditable: function (featureLayer){
+        featureLayer.on("click", lang.hitch(this, function(){
+          console.log("Graphic Clicked");
+        }));
+      }
+
 
       //methods to communication between widgets:
 
