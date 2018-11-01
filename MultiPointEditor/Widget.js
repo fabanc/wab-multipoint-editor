@@ -33,7 +33,7 @@ define(
           "https://services1.arcgis.com/vY6WuhLW0HkFe6Fl/arcgis/rest/services/Multipoints_Editing/FeatureServer/0"
         );
 
-        this.makeEditable();
+        this.makeEditable(this.multipoint);
         console.log('startup');
       },
 

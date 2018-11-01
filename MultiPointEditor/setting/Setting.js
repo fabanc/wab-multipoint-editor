@@ -76,11 +76,11 @@ define([
 
       _initToolbar: function() {
         this.useFilterEdit.setValue(this.config.editor.useFilterEdit);
-        this.toolbarVisible.setValue(this.config.editor.toolbarVisible);
-        this.enableUndoRedo.setValue(this.config.editor.enableUndoRedo);
-        this.mergeVisible.setValue(this.config.editor.toolbarOptions.mergeVisible);
-        this.cutVisible.setValue(this.config.editor.toolbarOptions.cutVisible);
-        this.reshapeVisible.setValue(this.config.editor.toolbarOptions.reshapeVisible);
+        //this.toolbarVisible.setValue(this.config.editor.toolbarVisible);
+        //this.enableUndoRedo.setValue(this.config.editor.enableUndoRedo);
+        //this.mergeVisible.setValue(this.config.editor.toolbarOptions.mergeVisible);
+        //this.cutVisible.setValue(this.config.editor.toolbarOptions.cutVisible);
+        //this.reshapeVisible.setValue(this.config.editor.toolbarOptions.reshapeVisible);
         this.usingSaveButton.setValue(this.config.editor.usingSaveButton);
         this.autoApplyEditWhenGeometryIsMoved.setValue(this.config.editor.autoApplyEditWhenGeometryIsMoved);
 
