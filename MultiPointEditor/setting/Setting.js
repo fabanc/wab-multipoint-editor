@@ -445,11 +445,11 @@ define([
 
       _resetToolbarConfig: function() {
         this.config.editor.useFilterEdit = this.useFilterEdit.checked;
-        this.config.editor.toolbarVisible = this.toolbarVisible.checked;
-        this.config.editor.enableUndoRedo = this.enableUndoRedo.checked;
-        this.config.editor.toolbarOptions.mergeVisible = this.mergeVisible.checked;
-        this.config.editor.toolbarOptions.cutVisible = this.cutVisible.checked;
-        this.config.editor.toolbarOptions.reshapeVisible = this.reshapeVisible.checked;
+        //this.config.editor.toolbarVisible = this.toolbarVisible.checked;
+        //this.config.editor.enableUndoRedo = this.enableUndoRedo.checked;
+        //this.config.editor.toolbarOptions.mergeVisible = this.mergeVisible.checked;
+        //this.config.editor.toolbarOptions.cutVisible = this.cutVisible.checked;
+        //this.config.editor.toolbarOptions.reshapeVisible = this.reshapeVisible.checked;
         this.config.editor.usingSaveButton = this.usingSaveButton.checked;
         this.config.editor.autoApplyEditWhenGeometryIsMoved =
           this.autoApplyEditWhenGeometryIsMoved.checked;
