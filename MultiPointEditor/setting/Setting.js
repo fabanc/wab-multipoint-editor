@@ -233,9 +233,11 @@ define([
               layerObject.isEditable()) {
             var layerInfo = this._getLayerInfoFromConfiguration(layerObject);
             if(!layerInfo) {
-              layerInfo = this._getDefaultLayerInfo(layerObject);
+              if (layerObject.geometryType === "esriGeometryMultipoint"){
+                layerInfo = this._getDefaultLayerInfo(layerObject);
+                editableLayerInfos.push(layerInfo);
+              }
             }
-            editableLayerInfos.push(layerInfo);
           }
         }
         return editableLayerInfos;
