@@ -152,9 +152,20 @@ define(
           console.log("Graphic Clicked");
           this.editToolbar.activate(Edit.EDIT_VERTICES , evt.graphic);
 
-          this.editToolbar.on("vertex-click", function(graphic, vertexInfo){
-            console.log("Clicked: ", vertexInfo);
-          })
+          this.editToolbar.on("vertex-click", lang.hitch(this,function(graphic, vertexInfo){
+            console.log("Vertex click: ");
+          }));
+
+          this.editToolbar.on("vertex-move-stop", lang.hitch(this, function(graphic, transform, vertexInfo){
+            console.log("Vertex move end: ");
+            this.editToolbar.on("deactivate", lang.hitch(this, function(evt) {
+              console.log("Desactivate editor.");
+              if(evt.info.isModified){
+                console.log("Applying edits.");
+                evt.graphic.getLayer().applyEdits(null, [evt.graphic], null);
+              }
+            }));
+          }));
         }));
       },
 
