@@ -4,6 +4,7 @@ define(
     "dojo/_base/lang",
     'dojo/_base/array',
     'dojo/Deferred',
+    'dojo/promise/all',
     'jimu/BaseWidget',
     'jimu/MapManager',
     'jimu/PanelManager',
@@ -21,7 +22,7 @@ define(
     "esri/toolbars/edit",
     "./utils",
   ],
-  function(declare, lang, array, Deferred, BaseWidget, MapManager, PanelManager, LayerInfos, LoadingShelter, JimuPopup,
+  function(declare, lang, array, Deferred, all, BaseWidget, MapManager, PanelManager, LayerInfos, LoadingShelter, JimuPopup,
     jimuUtils, portalUrlUtils, /*portalUtils,*/ SelectionManager, Role, FeatureLayer, Map, Draw, Edit, editUtils) {
     //To create a widget, you need to derive from BaseWidget.
     return declare([BaseWidget], {
@@ -31,6 +32,27 @@ define(
 
       //this property is set by the framework when widget is loaded.
       name: 'MultiPointEditor',
+      editToolbar: null,
+
+
+      _editorMapClickHandlers: null,
+      _layerObjectsParaForTempaltePicker: null,
+      _configEditor: null,
+      _releaseEventArrayAfterActive: null,
+      _releaseEventArrayAfterClose: null,
+      _canCreateLayersAreAllInvisibleFlag: null,
+      _layerInfoParamArrayUseForRervertRenderre: null,
+      _createOverDef : null,
+      _tableInfoParamDef : null,
+      _hasEditPrivilege : null,
+      _panelManager : null,
+      _changedTemplatesOfTemplatePicker : null,
+      _releaseEventArrayAfterEditingRelatedGraphic : null,
+      _isInEditingRelatedGraphicSession : null,
+      _needToRequeryFeatureArray : null,
+      _jimuLayerInfos : null,
+      _isEditableLayerStore : null,
+      _layerInfosInConfig : null,
 
       multipoints: null,
       //methods to communication with app container:
@@ -43,12 +65,51 @@ define(
       startup: function() {
         this.inherited(arguments);
         console.log(this.map);
-        this.multipoint = new FeatureLayer(
-          "https://services1.arcgis.com/vY6WuhLW0HkFe6Fl/arcgis/rest/services/Multipoints_Editing/FeatureServer/0"
-        );
 
-        this.makeEditable(this.multipoint);
+        this.loading = new LoadingShelter({
+          hidden: true
+        });
+        this.loading.placeAt(this.domNode);
+
+        var editOptions = {
+            allowAddVertices: true,
+            allowDeleteVertices:true
+        };
+
+        this.editToolbar = new Edit(this.map, editOptions);
+  
+
         this._init();
+        this._asyncPrepareDataAtStart().then(lang.hitch(this, function() {
+          var timeoutValue;
+          if(this.appConfig.theme.name === "BoxTheme") {
+            timeoutValue = 1050;
+            this.loading.show();
+          } else {
+            timeoutValue = 1;
+          }
+          setTimeout(lang.hitch(this, function() {
+            if(!this.loading.hidden) {
+              this.loading.hide();
+            }
+            this.widgetManager.activateWidget(this);
+            //this._createEditor();
+          }), timeoutValue);
+
+          //prepare tableInfosParam data for relatedRecordsEditor
+          // this._getTableInfosParam().then(lang.hitch(this, function(tableInfosParam) {
+          //   this.tableInfosParam = tableInfosParam;
+          //   this.tableInfosParamClone = this._cloneLayerOrTableInfosParam(this.tableInfosParam);
+          //   this._tableInfoParamDef.resolve();
+          // }));
+          this.loading.hide();
+        }), lang.hitch(this, function() {
+          this.loading.hide();
+        }));
+        var settings = this._getSettingsParam();
+
+
+
         console.log('startup');
       },
 
@@ -87,8 +148,13 @@ define(
 
 
       makeEditable: function (featureLayer){
-        featureLayer.on("click", lang.hitch(this, function(){
+        featureLayer.on("click", lang.hitch(this, function(evt){
           console.log("Graphic Clicked");
+          this.editToolbar.activate(Edit.EDIT_VERTICES , evt.graphic);
+
+          this.editToolbar.on("vertex-click", function(graphic, vertexInfo){
+            console.log("Clicked: ", vertexInfo);
+          })
         }));
       },
 
@@ -117,6 +183,36 @@ define(
         this._jimuLayerInfos = LayerInfos.getInstanceSync(this.map, this.map.itemInfo);
         this._isEditableLayerStore = {};
         this._layerInfosInConfig = this._getLayerInfosInConfig();
+      },
+
+      _asyncPrepareDataAtStart: function() {
+        var isEditableDefs = [];
+        array.forEach(this._layerInfosInConfig, function(layerInfoInConfig) {
+          var layerId = layerInfoInConfig.featureLayer.id;
+          //var layerObject = this.map.getLayer(layerId);
+          var jimuLayerInfo = this._jimuLayerInfos.getLayerInfoByTopLayerId(layerId);
+
+          if(jimuLayerInfo) {
+            var isEditableDef = jimuLayerInfo.isEditable();
+            isEditableDef._layerInfoInConfig = layerInfoInConfig;
+            isEditableDefs.push(isEditableDef);
+          }
+        }, this);
+
+        return all(isEditableDefs).then(lang.hitch(this, function(isEditables) {
+          array.forEach(isEditables, function(isEditable, index) {
+            var layerInfoInfoInConfig = isEditableDefs[index]._layerInfoInConfig;
+            var layerId = layerInfoInfoInConfig &&
+                layerInfoInfoInConfig.featureLayer &&
+                layerInfoInfoInConfig.featureLayer.id;
+            this._isEditableLayerStore[layerId] = isEditable;
+            var layer = this.map.getLayer(layerId);
+            this.makeEditable(layer);
+          }, this);
+
+          //For earch layer associate them with a double click event
+          return;
+        }));
       },
 
       _getLayerInfosInConfig: function() {
@@ -287,6 +383,24 @@ define(
         } else {
           isTemporaryFeature = true;
         }
+      },
+
+      _getSettingsParam: function() {
+        var settings = {
+          map: this.map,
+        };
+
+        for (var attr in this._configEditor) {
+          settings[attr] = this._configEditor[attr];
+        }
+        settings.layerInfos = this._getLayerInfosParam();
+        //settings.templatePicker = this._getTemplatePicker(settings.layerInfos);
+        // set popup tolerance
+        if(this._configEditor.popupTolerance !== undefined) {
+          settings.singleSelectionTolerance = this._configEditor.popupTolerance;
+        }
+
+        return settings;
       },
 
     });
