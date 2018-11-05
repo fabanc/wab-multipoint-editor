@@ -3,11 +3,13 @@ define(
     'dojo/_base/declare', 
     "dojo/_base/lang",
     "dojo/on",
+    "dojo/_base/Color",
     'dojo/_base/array',
     'dojo/Deferred',
     'dojo/promise/all',
     'dijit/form/Button',
     'dijit/Fieldset',
+    'dijit/form/RadioButton',
     'jimu/BaseWidget',
     'jimu/MapManager',
     'jimu/PanelManager',
@@ -19,17 +21,19 @@ define(
     'jimu/SelectionManager',
     'jimu/Role',
     "esri/layers/FeatureLayer",
-		"esri/map",
+    "esri/map",
+    "esri/symbols/SimpleMarkerSymbol",
+    "esri/tasks/query",
     "esri/toolbars/draw",
     "esri/toolbars/edit",
     "./utils",
   ],
   function(
-    declare, lang, on, array, Deferred, all, Button, Fieldset,
+    declare, lang, on, dojoColor, array, Deferred, all, Button, Fieldset, RadioButton,
     BaseWidget, MapManager, PanelManager, 
     LayerInfos, LoadingShelter, JimuPopup,
     jimuUtils, portalUrlUtils,SelectionManager, Role, 
-    FeatureLayer, Map, Draw, Edit, editUtils
+    FeatureLayer, Map, SimpleMarkerSymbol, Query, Draw, Edit, editUtils
     ) {
     //To create a widget, you need to derive from BaseWidget.
     return declare([BaseWidget], {
@@ -63,6 +67,8 @@ define(
 
       multipoints: null,
       _editableLayersIds: [],
+      selectedGraphic: null,
+      highlightSymbol : new SimpleMarkerSymbol().setColor(new dojoColor([255,0,0])),
       //methods to communication with app container:
 
       // postCreate: function() {
@@ -117,10 +123,29 @@ define(
         var settings = this._getSettingsParam();
 
 
-        //Tie buttons to events
-        on(this.btnMoveVertices, "click", lang.hitch(this, function(e){
-             this.activateMovePoint();
+        this.editToolbar.on("vertex-click", lang.hitch(this,function(graphic, vertexInfo){
+          console.log("Vertex click: ");
         }));
+
+        this.editToolbar.on("vertex-move-stop", lang.hitch(this, function(graphic, transform, vertexInfo){
+          console.log("Vertex move end: ");
+          this.editToolbar.deactivate();
+        }));
+
+
+        this.editToolbar.on("deactivate", lang.hitch(this, function(evt) {
+          console.log("Desactivate editor.");
+          if(evt.info.isModified){
+            console.log("Applying edits.");
+            evt.graphic.getLayer().applyEdits(null, [evt.graphic], null);
+          }
+        }));
+
+        
+        // //Tie buttons to events
+        // on(this.radioMoveVertices, "change", lang.hitch(this, function(e){
+        //      this.activateMovePoint();
+        // }));
 
         this.disableWebMapPopup();
 
@@ -160,6 +185,25 @@ define(
       //   console.log('resize');
       // }
 
+      makeLayersSelectable: function(){
+        for (var i=0; i < this._editableLayersIds.length; i++){
+          var layerId = this._editableLayersIds[i];
+          var featureLayer = this.map.getLayer(layerId);
+          featureLayer.on("click", lang.hitch(this, function(evt){
+            featureLayer.setSelectionSymbol(this.highlightSymbol);
+            var query = new Query();
+            query.where = featureLayer.objectIdField	+ "=" + evt.graphic.attributes[featureLayer.objectIdField];
+            featureLayer.selectFeatures(query, null, lang.hitch(this, 
+            function(){
+                console.log("Feature Selected ...");
+            }),
+            function(){
+                console.log("Feature Selection Failed ...");
+            })
+          }));
+        }
+      },
+
       activateMovePoint: function(){
           for (var i=0; i < this._editableLayersIds.length; i++){
             var layerId = this._editableLayersIds[i];
@@ -168,27 +212,15 @@ define(
           }
       },
 
+  
       makeMovable: function (featureLayer){
         featureLayer.on("click", lang.hitch(this, function(evt){
           console.log("Graphic Clicked");
-          this.editToolbar.activate(Edit.EDIT_VERTICES , evt.graphic);
-
-          this.editToolbar.on("vertex-click", lang.hitch(this,function(graphic, vertexInfo){
-            console.log("Vertex click: ");
-          }));
-
-          this.editToolbar.on("vertex-move-stop", lang.hitch(this, function(graphic, transform, vertexInfo){
-            console.log("Vertex move end: ");
-            this.editToolbar.on("deactivate", lang.hitch(this, function(evt) {
-              console.log("Desactivate editor.");
-              if(evt.info.isModified){
-                console.log("Applying edits.");
-                evt.graphic.getLayer().applyEdits(null, [evt.graphic], null);
-              }
-            }));
-          }));
+          //this.editToolbar.activate(Edit.EDIT_VERTICES , evt.graphic, {allowDeleteVertices:true});
         }));
       },
+
+
 
 
       _init: function() {
@@ -241,6 +273,7 @@ define(
             this._editableLayersIds.push(layerId);
           }, this);
 
+          this.makeLayersSelectable();
           //For earch layer associate them with a double click event
           return;
         }));

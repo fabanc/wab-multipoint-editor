@@ -1,23 +1,23 @@
 <div>
-    <!--<fieldset data-dojo-type="dijit/Fieldset">
-        <legend>${nls.updateLegend}</legend>-->
-        <button 
-            data-dojo-attach-point="btnMoveVertices"
-            data-dojo-type="dijit/form/Button" 
-            data-dojo-props="showLabel: false" 
-            type="button"> ${nls.moveVertices}
-        </button>
+        <input type="radio" 
+            data-dojo-type="dijit/form/RadioButton" 
+            id="radioUpdateMove" 
+            data-dojo-attach-point="radioMoveVertices"
+            name="updateGeometry" value="move"
+        /> 
+        <label for="radioUpdateMove">${nls.moveVertices}</label><br/> 
+        
 
-        <button 
-            data-dojo-type="dijit/form/Button" 
-            data-dojo-props="showLabel: false" 
-            type="button"> ${nls.addVertices}
-        </button>
+        <input type="radio" 
+            data-dojo-type="dijit/form/RadioButton" id="radioUpdateAdd"
+            name="updateGeometry" value="addVertices"
+        /> 
+        <label for="radioUpdateAdd">${nls.addVertices}</label><br/> 
 
-        <button 
-            data-dojo-type="dijit/form/Button" 
-            data-dojo-props="showLabel: false" 
-            type="button"> ${nls.removeVertices}
-        </button>
-    <!--</fieldset>-->
+
+        <input type="radio" 
+            data-dojo-type="dijit/form/RadioButton" id="radioUpdateRemove"
+            name="updateGeometry" value="removeVertices"
+        /> 
+        <label for="radioUpdateAdd">${nls.removeVertices}</label><br/> 
 </div>
