@@ -2,6 +2,7 @@ define(
 	[
     'dojo/_base/declare', 
     "dojo/_base/lang",
+    "dojo/on",
     'dojo/_base/array',
     'dojo/Deferred',
     'dojo/promise/all',
@@ -24,7 +25,7 @@ define(
     "./utils",
   ],
   function(
-    declare, lang, array, Deferred, all, Button, Fieldset,
+    declare, lang, on, array, Deferred, all, Button, Fieldset,
     BaseWidget, MapManager, PanelManager, 
     LayerInfos, LoadingShelter, JimuPopup,
     jimuUtils, portalUrlUtils,SelectionManager, Role, 
@@ -61,6 +62,7 @@ define(
       _layerInfosInConfig : null,
 
       multipoints: null,
+      _editableLayersIds: [],
       //methods to communication with app container:
 
       // postCreate: function() {
@@ -115,6 +117,12 @@ define(
         var settings = this._getSettingsParam();
 
 
+        //Tie buttons to events
+        on(this.btnMoveVertices, "click", lang.hitch(this, function(e){
+             this.activateMovePoint();
+        }));
+
+        this.disableWebMapPopup();
 
         console.log('startup');
       },
@@ -152,8 +160,15 @@ define(
       //   console.log('resize');
       // }
 
+      activateMovePoint: function(){
+          for (var i=0; i < this._editableLayersIds.length; i++){
+            var layerId = this._editableLayersIds[i];
+            var layer = this.map.getLayer(layerId);
+            this.makeMovable(layer);
+          }
+      },
 
-      makeEditable: function (featureLayer){
+      makeMovable: function (featureLayer){
         featureLayer.on("click", lang.hitch(this, function(evt){
           console.log("Graphic Clicked");
           this.editToolbar.activate(Edit.EDIT_VERTICES , evt.graphic);
@@ -223,8 +238,7 @@ define(
                 layerInfoInfoInConfig.featureLayer &&
                 layerInfoInfoInConfig.featureLayer.id;
             this._isEditableLayerStore[layerId] = isEditable;
-            var layer = this.map.getLayer(layerId);
-            this.makeEditable(layer);
+            this._editableLayersIds.push(layerId);
           }, this);
 
           //For earch layer associate them with a double click event
@@ -418,6 +432,39 @@ define(
         }
 
         return settings;
+      },
+
+
+      disableWebMapPopup: function() {
+        var mapManager = MapManager.getInstance();
+        mapManager.disableWebMapPopup();
+        // hide map's infoWindow
+        this.map.infoWindow.hide();
+        // instead of map's infowindow by editPopup
+        // this.map.setInfoWindow(this.editPopup);
+        // this._enableMapClickHandler();
+
+        // instead of Mapmanager.resetInfoWindow by self resetInfoWindow
+        // if (this._mapInfoStorage.resetInfoWindow === null) {
+        //   this._mapInfoStorage.resetInfoWindow = mapManager.resetInfoWindow;
+        //   this.own(on(this.map.infoWindow, "show", lang.hitch(this, function() {
+        //     if (window.appInfo.isRunInMobile) {
+        //       this.map.infoWindow.maximize();
+        //       setTimeout(lang.hitch(this, function() {
+        //         // cannot add class 'esriPopupMaximized' while calling maximize() immediately after call show().
+        //         html.addClass(this.editPopup.domNode, 'esriPopupMaximized');
+        //       }), 1);
+        //     }
+        //   })));
+        // }
+        // mapManager.resetInfoWindow = lang.hitch(this, function() {});
+
+        // // backup map snappingTolerance and reset it.
+        // if(this.map.snappingManager && this._configEditor.snappingTolerance !== undefined) {
+        //   this._mapInfoStorage.snappingTolerance = this.map.snappingManager.tolerance;
+        //   // default value is 15 pixels, compatible with old version app.
+        //   this.map.snappingManager.tolerance = this._configEditor.snappingTolerance;
+        // }
       },
 
     });
