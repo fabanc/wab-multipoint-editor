@@ -5,6 +5,8 @@ define(
     'dojo/_base/array',
     'dojo/Deferred',
     'dojo/promise/all',
+    'dijit/form/Button',
+    'dijit/Fieldset',
     'jimu/BaseWidget',
     'jimu/MapManager',
     'jimu/PanelManager',
@@ -13,7 +15,6 @@ define(
     'jimu/dijit/Popup',
     'jimu/utils',
     'jimu/portalUrlUtils',
-    //'jimu/portalUtils',
     'jimu/SelectionManager',
     'jimu/Role',
     "esri/layers/FeatureLayer",
@@ -22,8 +23,13 @@ define(
     "esri/toolbars/edit",
     "./utils",
   ],
-  function(declare, lang, array, Deferred, all, BaseWidget, MapManager, PanelManager, LayerInfos, LoadingShelter, JimuPopup,
-    jimuUtils, portalUrlUtils, /*portalUtils,*/ SelectionManager, Role, FeatureLayer, Map, Draw, Edit, editUtils) {
+  function(
+    declare, lang, array, Deferred, all, Button, Fieldset,
+    BaseWidget, MapManager, PanelManager, 
+    LayerInfos, LoadingShelter, JimuPopup,
+    jimuUtils, portalUrlUtils,SelectionManager, Role, 
+    FeatureLayer, Map, Draw, Edit, editUtils
+    ) {
     //To create a widget, you need to derive from BaseWidget.
     return declare([BaseWidget], {
       // Custom widget code goes here
