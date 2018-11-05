@@ -133,6 +133,7 @@ define(
               console.log("Need to pop a point and save at: ", vertexInfo.pointIndex);
               if(graphic.geometry.points.length === 1){
                 console.log("Unsupported operation: attempting to remove the last point of a multipoint geometry");
+                return;
               }
               var newPoints = [];
               for(var i=0; i < graphic.geometry.points.length; i++){
