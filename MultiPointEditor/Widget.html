@@ -1,23 +1,45 @@
 <div>
+        
+
+        <input type="radio" 
+            data-dojo-type="dijit/form/RadioButton" 
+            id="radioNoEdit" 
+            data-dojo-attach-point="radioNoEdit"
+            name="updateGeometry" 
+            value="move"
+            disabled ="true"
+        /> 
+        <label for="radioNoEdit">${nls.noEdits}</label><br/> 
+
         <input type="radio" 
             data-dojo-type="dijit/form/RadioButton" 
             id="radioUpdateMove" 
             data-dojo-attach-point="radioMoveVertices"
-            name="updateGeometry" value="move"
+            name="updateGeometry" 
+            value="move"
+            disabled ="true"
         /> 
         <label for="radioUpdateMove">${nls.moveVertices}</label><br/> 
         
 
         <input type="radio" 
-            data-dojo-type="dijit/form/RadioButton" id="radioUpdateAdd"
-            name="updateGeometry" value="addVertices"
+            data-dojo-type="dijit/form/RadioButton" 
+            id="radioUpdateAdd"
+            data-dojo-attach-point="radioAddVertices"
+            name="updateGeometry" 
+            value="addVertices"
+            disabled ="true"
         /> 
         <label for="radioUpdateAdd">${nls.addVertices}</label><br/> 
 
 
         <input type="radio" 
-            data-dojo-type="dijit/form/RadioButton" id="radioUpdateRemove"
-            name="updateGeometry" value="removeVertices"
+            data-dojo-type="dijit/form/RadioButton" 
+            id="radioUpdateRemove"
+            data-dojo-attach-point="radioRemoveVertices"
+            name="updateGeometry" 
+            value="removeVertices"
+            disabled ="true"
         /> 
-        <label for="radioUpdateAdd">${nls.removeVertices}</label><br/> 
+        <label for="radioUpdateRemove">${nls.removeVertices}</label><br/> 
 </div>
