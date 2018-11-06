@@ -173,6 +173,10 @@ define(
           this.choseEditingEvent();
         }));
 
+        on(this.radioNoEdit, "change", lang.hitch(this, function(e){
+          this.deactivateEditing();
+        }));
+        
         this.radioNoEdit.checked = true;
         this.disableWebMapPopup();
 
@@ -212,22 +216,20 @@ define(
       //   console.log('resize');
       // }
 
+      setEditButtonDisabled: function(disabled){
+        this.radioMoveVertices.disabled = disabled;
+        this.radioAddVertices.disabled = disabled;
+        this.radioRemoveVertices.disabled = disabled;
+      },
+
       activateEditing: function(){
-        this.radioMoveVertices.disabled = false;
-        this.radioAddVertices.disabled = false;
-        this.radioRemoveVertices.disabled = false;
+        this.activateEditing();
       },
 
       deactivateEditing: function(){
-        this.radioMoveVertices.disabled = true;
-        this.radioAddVertices.disabled = true;
-        this.radioRemoveVertices.disabled = true;
-
+        this.setEditButtonDisabled(true);
         //Remove any layer event associated with adding point
-        if (!this.currentAddEvent == null){
-          this.current.remove();
-          this.currentAddEvent = null;
-        }
+        this.removeAddEvent();
 
         //Deactivate the editing toolbar
         this.editToolbar.deactivate();
@@ -245,10 +247,7 @@ define(
           this.layerClickEvents[i].pause();
         }
 
-        if (!this.currentAddEvent == null){
-            this.current.remove();
-            this.currentAddEvent = null;
-        }
+        this.removeAddEvent();
 
         if (this.radioMoveVertices.checked){
             this.editToolbar.activate(Edit.EDIT_VERTICES , this.selectedGraphic, {allowDeleteVertices:false});
@@ -269,6 +268,14 @@ define(
         }
       },
     
+      removeAddEvent: function(){
+        console.log("Removing Add Event");
+        if (this.currentAddEvent != null){
+          this.currentAddEvent.remove();
+          this.currentAddEvent = null;
+        }
+      },
+
       makeLayersSelectable: function(){
         for (var i=0; i < this._editableLayersIds.length; i++){
           var layerId = this._editableLayersIds[i];
@@ -282,17 +289,19 @@ define(
         this.layerClickEvents.push(
           //featureLayer.on("click", lang.hitch(this, function(evt){
           on.pausable(featureLayer, "click", lang.hitch(this, function(evt){
-          if (this.selectedGraphic == null && this.selectedGraphic != evt.graphic){
+          console.log("Layer Click ...");
+          if (this.selectedGraphic == null || this.selectedGraphic != evt.graphic){
             featureLayer.setSelectionSymbol(this.highlightSymbol);
             var query = new Query();
             query.where = featureLayer.objectIdField	+ "=" + evt.graphic.attributes[featureLayer.objectIdField];
             featureLayer.selectFeatures(query, null, lang.hitch(this, 
             function(evt){
                 this.selectedGraphic = evt[0];
-                this.activateEditing();
+                this.setEditButtonDisabled(false);
             }),
             function(err){
                 console.log("Feature Selection Failed ...");
+                this.setEditButtonDisabled(true);
             })
           }
         })));
