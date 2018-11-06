@@ -10,6 +10,7 @@ define(
     'dijit/form/Button',
     'dijit/Fieldset',
     'dijit/form/RadioButton',
+    "dijit/_WidgetsInTemplateMixin",
     'jimu/BaseWidget',
     'jimu/MapManager',
     'jimu/PanelManager',
@@ -29,14 +30,15 @@ define(
     "./utils",
   ],
   function(
-    declare, lang, on, dojoColor, array, Deferred, all, Button, Fieldset, RadioButton,
+    declare, lang, on, dojoColor, array, Deferred, all, 
+    Button, Fieldset, RadioButton, _WidgetsInTemplateMixin,
     BaseWidget, MapManager, PanelManager, 
     LayerInfos, LoadingShelter, JimuPopup,
     jimuUtils, portalUrlUtils,SelectionManager, Role, 
     FeatureLayer, Map, SimpleMarkerSymbol, Query, Draw, Edit, editUtils
     ) {
     //To create a widget, you need to derive from BaseWidget.
-    return declare([BaseWidget], {
+    return declare([BaseWidget, _WidgetsInTemplateMixin], {
       // Custom widget code goes here
 
       baseClass: 'jimu-widget-multipointeditor',
