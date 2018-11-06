@@ -118,7 +118,7 @@ define(
 
         this.editToolbar = new Edit(this.map, null);
         this.drawToolbar = new Draw(this.map);
-
+        this.setEditButtonDisabled(true);
         this._init();
         this._asyncPrepareDataAtStart().then(lang.hitch(this, function() {
           var timeoutValue;
@@ -182,7 +182,8 @@ define(
 
         this.editToolbar.on("vertex-move-stop", lang.hitch(this, function(graphic, transform, vertexInfo){
           console.log("Vertex move end: ");
-          this.editToolbar.deactivate();
+          //this.editToolbar.deactivate();
+          this.deactivateEditing();
         }));
 
         this.editToolbar.on("deactivate", lang.hitch(this, function(evt) {
@@ -195,27 +196,54 @@ define(
 
         // //Tie buttons to events
         on(this.radioMoveVertices, "change", lang.hitch(this, function(e){
-             this.choseEditingEvent();
+            if (this.radioMoveVertices.checked){ 
+              this.choseEditingEvent();
+            }
         }));
 
         on(this.radioAddVertices, "change", lang.hitch(this, function(e){
-          this.choseEditingEvent();
+          if (this.radioAddVertices.checked){ 
+            this.choseEditingEvent();
+          }
         }));
 
         on(this.radioRemoveVertices, "change", lang.hitch(this, function(e){
-          this.choseEditingEvent();
+          if (this.radioRemoveVertices.checked){ 
+            this.choseEditingEvent();
+          }
         }));
 
         on(this.radioNoEdit, "change", lang.hitch(this, function(e){
-          this.deactivateEditing();
+          if (this.radioNoEdit.checked){
+            this.deactivateEditing();
+          }
         }));
 
         // on(this.radioInsert, "change", lang.hitch(this, function(e){
         //   this.activateDraw();
         // }));
 
-        
         this.radioNoEdit.checked = true;
+
+        on(this.btnDeleteFeature, "click", lang.hitch(this, function(e){
+          if (this.selectedGraphic){
+            var layer = this.selectedGraphic.getLayer();
+            if(layer){
+              layer.applyEdits(
+                null,
+                null,
+                [this.selectedGraphic],
+                lang.hitch(this, function(){
+                  console.log("Feature Deleted Successfully");
+                  this.selectedGraphic = null;
+                }),
+                function(err){console.log("Error while deleting feature", err.details[0])},
+              );
+            }
+          }
+          console.log("Clicked delete feature");
+        }));
+
         this.disableWebMapPopup();
 
         console.log('startup');
@@ -296,6 +324,7 @@ define(
         this.radioAddVertices.disabled = disabled;
         this.radioRemoveVertices.disabled = disabled;
         this.radioInsert.disabled = disabled;
+        this.btnDeleteFeature.set("disabled", disabled);
       },
 
       activateEditing: function(){
@@ -309,19 +338,28 @@ define(
 
         //Deactivate the editing toolbar
         this.editToolbar.deactivate();
+        this.activateLayerClickEvents();
+        this.radioNoEdit.check = true;
+      },
 
-        //Resume listening to click for graphic selection
+      activateLayerClickEvents: function(){
+        console.log("Resuming layer click event");
         for(var i=0; i < this.layerClickEvents.length; i++){
           this.layerClickEvents[i].resume();
+        }
+      },
+
+      pauseLayerClickEvents: function(){
+        console.log("Pausing layer click event");
+        for(var i=0; i < this.layerClickEvents.length; i++){
+          this.layerClickEvents[i].pause();
         }
       },
 
       choseEditingEvent: function(){
 
         //console.log("Pausing selection events");
-        for(var i=0; i < this.layerClickEvents.length; i++){
-          this.layerClickEvents[i].pause();
-        }
+        this.pauseLayerClickEvents();
 
         this.removeAddEvent();
 
@@ -366,7 +404,7 @@ define(
           //featureLayer.on("click", lang.hitch(this, function(evt){
           on.pausable(featureLayer, "click", lang.hitch(this, function(evt){
           console.log("Layer Click ...");
-          if (this.selectedGraphic == null || this.selectedGraphic != evt.graphic){
+          //if (this.selectedGraphic == null){
             featureLayer.setSelectionSymbol(this.highlightSymbol);
             var query = new Query();
             query.where = featureLayer.objectIdField	+ "=" + evt.graphic.attributes[featureLayer.objectIdField];
@@ -379,7 +417,7 @@ define(
                 console.log("Feature Selection Failed ...");
                 this.setEditButtonDisabled(true);
             })
-          }
+        //  }
         })));
       },
 

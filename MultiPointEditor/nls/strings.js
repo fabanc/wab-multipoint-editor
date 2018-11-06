@@ -7,6 +7,7 @@
         addVertices: "Add vertices",
         removeVertices: "Remove vertices",
         updateLegend: "Update an existing symbol",
-        addMultipoint: "Add new multipoint feature"
+        addMultipoint: "Add new multipoint feature",
+        deleteFeature: "Delete Feature"
     }) 
 });

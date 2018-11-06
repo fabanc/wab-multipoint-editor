@@ -16,7 +16,6 @@
             data-dojo-attach-point="radioMoveVertices"
             name="updateGeometry" 
             value="move"
-            disabled ="true"
         /> 
         <label for="radioUpdateMove">${nls.moveVertices}</label><br/> 
         
@@ -27,7 +26,6 @@
             data-dojo-attach-point="radioAddVertices"
             name="updateGeometry" 
             value="addVertices"
-            disabled ="true"
         /> 
         <label for="radioUpdateAdd">${nls.addVertices}</label><br/> 
 
@@ -38,9 +36,14 @@
             data-dojo-attach-point="radioRemoveVertices"
             name="updateGeometry" 
             value="removeVertices"
-            disabled ="true"
         /> 
         <label for="radioUpdateRemove">${nls.removeVertices}</label><br/> 
+
+        <button 
+            data-dojo-type="dijit/form/Button" 
+            data-dojo-attach-point="btnDeleteFeature"
+            >${nls.deleteFeature}
+        </button>
     </fieldset>
 
     <fieldset data-dojo-type="dijit/Fieldset">
@@ -51,7 +54,6 @@
         data-dojo-attach-point="radioInsert"
         name="updateGeometry" 
         value="insertVertices"
-        disabled ="true"
         /> 
         <label for="radioInsertNewFeatures">${nls.addMultipoint}</label><br/> 
 
