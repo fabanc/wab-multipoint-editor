@@ -144,9 +144,7 @@ define(
               graphic.geometry.points = newPoints;
               graphic.getLayer().applyEdits(null, [graphic], null);  
           }
-          else{
-            console.log("Vertex click: ");
-          }
+          //Otherwise, vertex click before move. Nothing to do in that case.
         }));
 
         this.editToolbar.on("vertex-move-stop", lang.hitch(this, function(graphic, transform, vertexInfo){
@@ -175,6 +173,7 @@ define(
           this.choseEditingEvent();
         }));
 
+        this.radioNoEdit.checked = true;
         this.disableWebMapPopup();
 
         console.log('startup');
@@ -214,11 +213,29 @@ define(
       // }
 
       activateEditing: function(){
-        
         this.radioMoveVertices.disabled = false;
         this.radioAddVertices.disabled = false;
         this.radioRemoveVertices.disabled = false;
+      },
 
+      deactivateEditing: function(){
+        this.radioMoveVertices.disabled = true;
+        this.radioAddVertices.disabled = true;
+        this.radioRemoveVertices.disabled = true;
+
+        //Remove any layer event associated with adding point
+        if (!this.currentAddEvent == null){
+          this.current.remove();
+          this.currentAddEvent = null;
+        }
+
+        //Deactivate the editing toolbar
+        this.editToolbar.deactivate();
+
+        //Resume listening to click for graphic selection
+        for(var i=0; i < this.layerClickEvents.length; i++){
+          this.layerClickEvents[i].resume();
+        }
       },
 
       choseEditingEvent: function(){
