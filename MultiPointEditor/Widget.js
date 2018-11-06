@@ -4,6 +4,7 @@ define(
     "dojo/_base/lang",
     "dojo/on",
     "dojo/_base/Color",
+    'dojo/_base/html',
     'dojo/_base/array',
     'dojo/Deferred',
     'dojo/promise/all',
@@ -22,20 +23,23 @@ define(
     'jimu/SelectionManager',
     'jimu/Role',
     "esri/layers/FeatureLayer",
+    "esri/graphic",
     "esri/map",
     "esri/symbols/SimpleMarkerSymbol",
     "esri/tasks/query",
     "esri/toolbars/draw",
     "esri/toolbars/edit",
+    "esri/dijit/editing/TemplatePicker",
     "./utils",
+    "./lib/EditPopup"
   ],
   function(
-    declare, lang, on, dojoColor, array, Deferred, all, 
+    declare, lang, on, dojoColor, html, array, Deferred, all, 
     Button, Fieldset, RadioButton, _WidgetsInTemplateMixin,
     BaseWidget, MapManager, PanelManager, 
     LayerInfos, LoadingShelter, JimuPopup,
     jimuUtils, portalUrlUtils,SelectionManager, Role, 
-    FeatureLayer, Map, SimpleMarkerSymbol, Query, Draw, Edit, editUtils
+    FeatureLayer, Graphic, Map, SimpleMarkerSymbol, Query, Draw, Edit, TemplatePicker, editUtils, EditPopup
     ) {
     //To create a widget, you need to derive from BaseWidget.
     return declare([BaseWidget, _WidgetsInTemplateMixin], {
@@ -46,8 +50,14 @@ define(
       //this property is set by the framework when widget is loaded.
       name: 'MultiPointEditor',
       editToolbar: null,
+      drawToolbar: null,
 
-
+      positionInfo: {
+        TOP: "18px",
+        TOP_WITH_TEMPLATE_FILTER: "115px",
+        TOP_WITH_EDIT_RG: "53px",
+        TOP_WITH_TEMPLATE_FILTER_AND_EDIT_RG: "155px"
+      },
       _editorMapClickHandlers: null,
       _layerObjectsParaForTempaltePicker: null,
       _configEditor: null,
@@ -73,6 +83,8 @@ define(
       highlightSymbol : new SimpleMarkerSymbol().setColor(new dojoColor([255,0,0])),
       layerClickEvents: [],
       currentAddEvent: null,
+
+      editPopup: null,
       //methods to communication with app container:
 
       // postCreate: function() {
@@ -82,20 +94,30 @@ define(
 
       startup: function() {
         this.inherited(arguments);
-        console.log(this.map);
+
+        //Configuring the popup that will be used for editing
+        this.editPopup = new EditPopup(
+          null, 
+          html.create("div", {
+            "class":"jimu-widget-edit-infoWindow"
+          },
+          null,
+          this.map.root
+        ));
+        
 
         this.loading = new LoadingShelter({
           hidden: true
         });
         this.loading.placeAt(this.domNode);
 
-        var editOptions = {
-            allowAddVertices: true,
-            allowDeleteVertices:true
-        };
+        // var editOptions = {
+        //     allowAddVertices: true,
+        //     allowDeleteVertices:true
+        // };
 
-        this.editToolbar = new Edit(this.map, editOptions);
-  
+        this.editToolbar = new Edit(this.map, null);
+        this.drawToolbar = new Draw(this.map);
 
         this._init();
         this._asyncPrepareDataAtStart().then(lang.hitch(this, function() {
@@ -125,7 +147,7 @@ define(
           this.loading.hide();
         }));
 
-        var settings = this._getSettingsParam();
+        //var settings = this._getSettingsParam();
         this.editToolbar.on("vertex-click", lang.hitch(this,function(evt){
           
           var graphic = this.selectedGraphic;
@@ -144,7 +166,16 @@ define(
                 }
               }
               graphic.geometry.points = newPoints;
-              graphic.getLayer().applyEdits(null, [graphic], null);  
+              graphic.getLayer().applyEdits(
+                null, 
+                [graphic], 
+                null, 
+                function(){
+                  console.log("Feature Added!");
+                },
+                function(err){
+                  console.log("Failed to add feature: ", err);
+                });  
           }
           //Otherwise, vertex click before move. Nothing to do in that case.
         }));
@@ -178,11 +209,21 @@ define(
         on(this.radioNoEdit, "change", lang.hitch(this, function(e){
           this.deactivateEditing();
         }));
+
+        // on(this.radioInsert, "change", lang.hitch(this, function(e){
+        //   this.activateDraw();
+        // }));
+
         
         this.radioNoEdit.checked = true;
         this.disableWebMapPopup();
 
         console.log('startup');
+      },
+
+      activateDraw: function(featureLayer){
+        this.drawToolbar.on("draw-complete", lang.hitch(this, this.addDrawingGraphicToMap, featureLayer));
+        this.drawToolbar.activate(Draw.MULTI_POINT, null);
       },
 
       // onOpen: function(){
@@ -218,10 +259,43 @@ define(
       //   console.log('resize');
       // }
 
+
+      addDrawingGraphicToMap: function (layer, evt) {
+        console.log("Adding drawing ...");
+        var symbol;
+        this.drawToolbar.deactivate();
+        //map.showZoomSlider();
+        switch (evt.geometry.type) {
+          case "point":
+          case "multipoint":
+            symbol = new SimpleMarkerSymbol();
+            break;
+          case "polyline":
+            symbol = new SimpleLineSymbol();
+            break;
+          default:
+            symbol = new SimpleFillSymbol();
+            break;
+        }
+        var graphic = new Graphic(evt.geometry, symbol, {});
+        layer.applyEdits(
+          [graphic], 
+          null,  
+          null,
+          function(){
+            console.log("Feature Added!");
+          },
+          function(err){
+            console.log("Failed to add feature: ", err.details[0]);
+          });
+        //map.graphics.add(graphic);
+      },
+
       setEditButtonDisabled: function(disabled){
         this.radioMoveVertices.disabled = disabled;
         this.radioAddVertices.disabled = disabled;
         this.radioRemoveVertices.disabled = disabled;
+        this.radioInsert.disabled = disabled;
       },
 
       activateEditing: function(){
@@ -374,6 +448,7 @@ define(
             this._editableLayersIds.push(layerId);
           }, this);
 
+          var settings = this._getSettingsParam();
           this.makeLayersSelectable();
           //For earch layer associate them with a double click event
           return;
@@ -550,6 +625,45 @@ define(
         }
       },
 
+      _getTemplatePicker: function(layerInfos) {
+        this._layerObjectsParaForTempaltePicker = [];
+
+        array.forEach(layerInfos, function(layerInfo) {
+          if(layerInfo.featureLayer &&
+            layerInfo.featureLayer.getEditCapabilities &&
+            layerInfo.featureLayer.getEditCapabilities().canCreate) {
+            this._layerObjectsParaForTempaltePicker.push(layerInfo.featureLayer);
+          }
+        }, this);
+
+        var bottomStyle = this._configEditor.toolbarVisible ? "" : "bottom: 0px";
+        var topStyle = this._configEditor.useFilterEdit ?
+                       "top: " + this.positionInfo.TOP_WITH_TEMPLATE_FILTER :
+                       "top: " + this.positionInfo.TOP;
+        var templatePicker = new TemplatePicker({
+          featureLayers: this._layerObjectsParaForTempaltePicker,
+          grouping: true,
+          rows: "auto",
+          columns: "auto",
+          style: bottomStyle + ";" + topStyle
+        }, html.create("div", {}, this.templatePickerDiv));
+
+        templatePicker.on("selection-change", lang.hitch(this, function() {
+          this.drawToolbar.deactivate();
+          var selected = templatePicker.getSelected();
+          if (selected) {
+            var featureLayer = selected.featureLayer;
+            var type = selected.type;
+            var template = selected.template; 
+            this.activateDraw(featureLayer);
+            console.log("Selected Layer: ", featureLayer.id);      
+          }
+        }));
+
+        templatePicker.startup();
+        return templatePicker;
+      },
+
       _getSettingsParam: function() {
         var settings = {
           map: this.map,
@@ -559,7 +673,7 @@ define(
           settings[attr] = this._configEditor[attr];
         }
         settings.layerInfos = this._getLayerInfosParam();
-        //settings.templatePicker = this._getTemplatePicker(settings.layerInfos);
+        settings.templatePicker = this._getTemplatePicker(settings.layerInfos);
         // set popup tolerance
         if(this._configEditor.popupTolerance !== undefined) {
           settings.singleSelectionTolerance = this._configEditor.popupTolerance;
@@ -574,8 +688,8 @@ define(
         mapManager.disableWebMapPopup();
         // hide map's infoWindow
         this.map.infoWindow.hide();
-        // instead of map's infowindow by editPopup
-        // this.map.setInfoWindow(this.editPopup);
+        //instead of map's infowindow by editPopup
+        this.map.setInfoWindow(this.editPopup);
         // this._enableMapClickHandler();
 
         // instead of Mapmanager.resetInfoWindow by self resetInfoWindow
