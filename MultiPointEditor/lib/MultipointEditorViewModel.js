@@ -153,5 +153,25 @@ define(
                 }));
             }
         },
+
+        deleteSelectedGraphic: function(){
+            if(this.selectedGraphic != null){
+                var layer = this.selectedGraphic.getLayer();
+                layer.applyEdits(
+                    null, 
+                    null, 
+                    [this.selectedGraphic],
+                    lang.hitch(this, function(){
+                        this.set("selectedGraphic", null);
+                    }),
+                    lang.hitch(this, function(err){
+                        console.log(
+                            "Error happened when attempting to deleted feature: ", 
+                            {error: err, graphic: this.selectedGraphic}
+                        );
+                    })
+                );
+            }
+        }
     });
 });

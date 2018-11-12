@@ -248,19 +248,19 @@ define(
         // this.radioNoEdit.check = true;
       },
 
-      activateLayerClickEvents: function(){
-        console.log("Resuming layer click event");
-        for(var i=0; i < this.layerClickEvents.length; i++){
-          this.layerClickEvents[i].resume();
-        }
-      },
+      // activateLayerClickEvents: function(){
+      //   console.log("Resuming layer click event");
+      //   for(var i=0; i < this.layerClickEvents.length; i++){
+      //     this.layerClickEvents[i].resume();
+      //   }
+      // },
 
-      pauseLayerClickEvents: function(){
-        console.log("Pausing layer click event");
-        for(var i=0; i < this.layerClickEvents.length; i++){
-          this.layerClickEvents[i].pause();
-        }
-      },
+      // pauseLayerClickEvents: function(){
+      //   console.log("Pausing layer click event");
+      //   for(var i=0; i < this.layerClickEvents.length; i++){
+      //     this.layerClickEvents[i].pause();
+      //   }
+      // },
 
       // choseEditingEvent: function(){
 

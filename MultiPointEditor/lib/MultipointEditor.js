@@ -66,7 +66,9 @@ define(
                 this.setEditControlsDisabled(true);
             }));
 
-            //Listen to layers selection
+            this.btnDeleteFeature.on("click", lang.hitch(this, function(){
+                this.viewModel.deleteSelectedGraphic();
+            }));
             
         },
 
