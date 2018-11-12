@@ -81,10 +81,6 @@ define(
 
       multipoints: null,
       _editableLayersIds: [],
-      selectedGraphic: null,
-      highlightSymbol : new SimpleMarkerSymbol().setColor(new dojoColor([255,0,0])),
-      layerClickEvents: [],
-      currentAddEvent: null,
       multipointEditor: null,
       //multipointEditorVM:null,
 
@@ -222,125 +218,8 @@ define(
           function(err){
             console.log("Failed to add feature: ", err.details[0]);
           });
-        //map.graphics.add(graphic);
       },
 
-      setEditButtonDisabled: function(disabled){
-        // this.radioMoveVertices.disabled = disabled;
-        // this.radioAddVertices.disabled = disabled;
-        // this.radioRemoveVertices.disabled = disabled;
-        // this.radioInsert.disabled = disabled;
-        // this.btnDeleteFeature.set("disabled", disabled);
-      },
-
-      activateEditing: function(){
-        this.activateEditing();
-      },
-
-      deactivateEditing: function(){
-        // this.setEditButtonDisabled(true);
-        // //Remove any layer event associated with adding point
-        // this.removeAddEvent();
-
-        // //Deactivate the editing toolbar
-        // this.editToolbar.deactivate();
-        // this.activateLayerClickEvents();
-        // this.radioNoEdit.check = true;
-      },
-
-      // activateLayerClickEvents: function(){
-      //   console.log("Resuming layer click event");
-      //   for(var i=0; i < this.layerClickEvents.length; i++){
-      //     this.layerClickEvents[i].resume();
-      //   }
-      // },
-
-      // pauseLayerClickEvents: function(){
-      //   console.log("Pausing layer click event");
-      //   for(var i=0; i < this.layerClickEvents.length; i++){
-      //     this.layerClickEvents[i].pause();
-      //   }
-      // },
-
-      // choseEditingEvent: function(){
-
-      //   //console.log("Pausing selection events");
-      //   this.pauseLayerClickEvents();
-
-      //   this.removeAddEvent();
-
-      //   if (this.radioMoveVertices.checked){
-      //       this.editToolbar.activate(Edit.EDIT_VERTICES , this.selectedGraphic, {allowDeleteVertices:false});
-      //   }
-      //   else if (this.radioAddVertices.checked){
-      //       //var graphicLayer = this.selectedGraphic.getLayer();
-      //       this.currentAddEvent = this.map.on("click", lang.hitch(this, function(evt){
-      //           console.log("Pushing point: ", evt.mapPoint);
-      //           this.selectedGraphic.geometry.points.push(
-      //               [evt.mapPoint.x, evt.mapPoint.y]
-      //           );
-      //           this.selectedGraphic.getLayer().applyEdits([this.selectedGraphic], null, null);
-      //       }))
-      //   }
-      //   else if (this.radioRemoveVertices.checked){
-      //     console.log("Activating Remove ...");
-      //     this.editToolbar.activate(Edit.EDIT_VERTICES , this.selectedGraphic, {allowDeleteVertices:true});
-      //   }
-      // },
-    
-      removeAddEvent: function(){
-        console.log("Removing Add Event");
-        if (this.currentAddEvent != null){
-          this.currentAddEvent.remove();
-          this.currentAddEvent = null;
-        }
-      },
-
-      // makeLayersSelectable: function(){
-      //   for (var i=0; i < this._editableLayersIds.length; i++){
-      //     var layerId = this._editableLayersIds[i];
-      //     var featureLayer = this.map.getLayer(layerId);
-      //     this.makeLayerSelectable(featureLayer);
-      //   }
-      // },
-
-      // makeLayerSelectable(featureLayer){
-      //   //console.log("Pushing click event");
-      //   this.layerClickEvents.push(
-      //     //featureLayer.on("click", lang.hitch(this, function(evt){
-      //     on.pausable(featureLayer, "click", lang.hitch(this, function(evt){
-      //     console.log("Layer Click ...");
-      //     //if (this.selectedGraphic == null){
-      //       featureLayer.setSelectionSymbol(this.highlightSymbol);
-      //       var query = new Query();
-      //       query.where = featureLayer.objectIdField	+ "=" + evt.graphic.attributes[featureLayer.objectIdField];
-      //       featureLayer.selectFeatures(query, null, lang.hitch(this, 
-      //       function(evt){
-      //           this.selectedGraphic = evt[0];
-      //           this.setEditButtonDisabled(false);
-      //       }),
-      //       function(err){
-      //           console.log("Feature Selection Failed ...");
-      //           this.setEditButtonDisabled(true);
-      //       })
-      //   //  }
-      //   })));
-      // },
-
-      activateMovePoint: function(){
-          for (var i=0; i < this._editableLayersIds.length; i++){
-            var layerId = this._editableLayersIds[i];
-            var layer = this.map.getLayer(layerId);
-            this.makeMovable(layer);
-          }
-      },
-
-      makeMovable: function (featureLayer){
-        featureLayer.on("click", lang.hitch(this, function(evt){
-          console.log("Graphic Clicked");
-          //this.editToolbar.activate(Edit.EDIT_VERTICES , evt.graphic, {allowDeleteVertices:true});
-        }));
-      },
 
       _init: function() {
         this._mapInfoStorage = {
