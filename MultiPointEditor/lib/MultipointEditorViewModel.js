@@ -102,7 +102,11 @@ define(
                 this.selectedGraphic.geometry.points.push(
                     [evt.mapPoint.x, evt.mapPoint.y]
                 );
-                this.selectedGraphic.getLayer().applyEdits(null, null, null);
+                this.selectedGraphic.getLayer().applyEdits(null, [this.selectedGraphic], null,
+                null,
+                function(err){
+                    console.warn("Failed to update graphic after vertex-add edit operation. Error: ", err);
+                });
             }))
         },
 
