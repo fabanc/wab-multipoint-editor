@@ -1,50 +1,5 @@
 <div>
-    <fieldset data-dojo-type="dijit/Fieldset">
-        <legend>${nls.editExistingFeatures}</legend>
-        <input type="radio" 
-            data-dojo-type="dijit/form/RadioButton" 
-            id="radioNoEditId" 
-            data-dojo-attach-point="radioNoEdit"
-            name="updateGeometry" 
-            value="noEdit"
-        /> 
-        <label for="radioNoEdit">${nls.noEdits}</label><br/> 
-
-        <input type="radio" 
-            data-dojo-type="dijit/form/RadioButton" 
-            id="radioUpdateMove" 
-            data-dojo-attach-point="radioMoveVertices"
-            name="updateGeometry" 
-            value="move"
-        /> 
-        <label for="radioUpdateMove">${nls.moveVertices}</label><br/> 
-        
-
-        <input type="radio" 
-            data-dojo-type="dijit/form/RadioButton" 
-            id="radioUpdateAdd"
-            data-dojo-attach-point="radioAddVertices"
-            name="updateGeometry" 
-            value="addVertices"
-        /> 
-        <label for="radioUpdateAdd">${nls.addVertices}</label><br/> 
-
-
-        <input type="radio" 
-            data-dojo-type="dijit/form/RadioButton" 
-            id="radioUpdateRemove"
-            data-dojo-attach-point="radioRemoveVertices"
-            name="updateGeometry" 
-            value="removeVertices"
-        /> 
-        <label for="radioUpdateRemove">${nls.removeVertices}</label><br/> 
-
-        <button 
-            data-dojo-type="dijit/form/Button" 
-            data-dojo-attach-point="btnDeleteFeature"
-            >${nls.deleteFeature}
-        </button>
-    </fieldset>
+    <div data-dojo-attach-point="multipointEditWidget"></div>
 
     <fieldset data-dojo-type="dijit/Fieldset">
         <legend>${nls.insertNewFeatures}</legend>
