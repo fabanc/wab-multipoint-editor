@@ -60,10 +60,11 @@ define(
             }));
 
             this.btnStopEditingFeature.on("click", lang.hitch(this, function(){
-                var editedLayer = this.viewModel.selectedGraphic.getLayer();
-                editedLayer.clearSelection();
-                this.viewModel.set("selectedGraphic", null);
-                this.setEditControlsDisabled(true);
+                // var editedLayer = this.viewModel.selectedGraphic.getLayer();
+                // editedLayer.clearSelection();
+                // this.viewModel.set("selectedGraphic", null);
+                // this.setEditControlsDisabled(true);
+                this.stopEditing();
             }));
 
             this.btnDeleteFeature.on("click", lang.hitch(this, function(){
@@ -72,6 +73,14 @@ define(
             
         },
 
+        stopEditing: function(){
+            if(this.viewModel.selectedGraphic != null){
+                var editedLayer = this.viewModel.selectedGraphic.getLayer();
+                editedLayer.clearSelection();
+                this.viewModel.set("selectedGraphic", null);
+                this.setEditControlsDisabled(true);        
+            } 
+        },
     
         // ---------------------------------------------------------------
         // Layer Click Events Management

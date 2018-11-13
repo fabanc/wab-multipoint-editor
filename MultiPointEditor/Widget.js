@@ -423,6 +423,8 @@ define(
        * Methods for data handle.
        ***************************************/
 
+
+
       _cloneLayerOrTableInfosParam: function(layerOrTableInfosParam) {
         var layerOrTableInfosParamClone = [];
         array.forEach(layerOrTableInfosParam, function(layerOrTableInfo) {
@@ -475,7 +477,9 @@ define(
 
         templatePicker.on("selection-change", lang.hitch(this, function() {
           this.drawToolbar.deactivate();
-          this.multipointEditor.setEditControlsDisabled(true);
+          
+          //this.multipointEditor.setEditControlsDisabled(true);
+          this.multipointEditor.stopEditing();
           var selected = templatePicker.getSelected();
           if (selected) {
             var featureLayer = selected.featureLayer;
@@ -509,6 +513,10 @@ define(
       },
 
 
+      // ------------------------------------------------------------------------
+      // -- Editing Popup Management
+      // ------------------------------------------------------------------------
+
       disableWebMapPopup: function() {
         var mapManager = MapManager.getInstance();
         mapManager.disableWebMapPopup();
@@ -540,6 +548,27 @@ define(
         //   this.map.snappingManager.tolerance = this._configEditor.snappingTolerance;
         // }
       },
+
+      _enableMapClickHandler: function() {
+        if (this.editor) {
+          this._editorMapClickHandlers.push(this.editor._mapClickHandler);
+          this.editor._enableMapClickHandler();
+          this._editorMapClickHandlers.push(this.editor._mapClickHandler);
+        }
+      },
+
+      _disableMapClickHandler: function() {
+        if (this.editor) {
+          this.editor._disableMapClickHandler();
+          array.forEach(this._editorMapClickHandlers, function(editorMapClickHandler) {
+            if(editorMapClickHandler && editorMapClickHandler.remove) {
+              editorMapClickHandler.remove();
+            }
+          }, this);
+          this._editorMapClickHandlers = [];
+        }
+      },
+
 
     });
   });
