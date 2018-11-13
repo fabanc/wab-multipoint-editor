@@ -14,6 +14,19 @@ If your multi-point feature class does not have required values, this widget wil
 
 In order to use that widget, copy the folder MultiPoint editor in you web app builder folder, under client\stemapp\widgets.
 
-# How to use.
+## How to use.
 
-When the widget is open click on the multipoint layer that needs to be edited, in order to select a graphic. Once the graphic is selected, feature action commande will be enables. You can move vertices, delete vertices, add vertices on an existing geometry using the action in the drop down list. The delete button will delete the whole geometry, no just the vertex. In order to stop editing a geometry and work on another feature, you need to click the stop edit button.
+### Edit an existing multi-point geometry.
+
+When MultiPointEditor is open, click on the multipoint layer that needs to be edited. This will select a graphic. Selected graphic will have a specific symbol.
+
+Once the graphic is selected, feature action commands will be enabled. Using the drop down list, it is possible to modify the vertices of a multi-point feature by:
+ - Moving vertices 
+ - Deleting vertices
+-  Adding vertices
+
+The delete button will delete the whole geometry, no just the vertex. In order to stop editing a geometry and work on another feature, you need to click the stop edit button.
+
+### Creating a brand-new multipoint feature.
+
+Click on the feature template on the bottom part of the widget. This will activate the "Create New Feature Mode" and stop the "Edit Existing Feature Mode".
