@@ -22,6 +22,7 @@ define(
     'jimu/portalUrlUtils',
     'jimu/SelectionManager',
     'jimu/Role',
+    "esri/dijit/AttributeInspector",
     "esri/layers/FeatureLayer",
     "esri/graphic",
     "esri/map",
@@ -40,7 +41,7 @@ define(
     BaseWidget, MapManager, PanelManager, 
     LayerInfos, LoadingShelter, JimuPopup,
     jimuUtils, portalUrlUtils,SelectionManager, Role, 
-    FeatureLayer, Graphic, Map, SimpleMarkerSymbol, Query, Draw, Edit, TemplatePicker, editUtils, EditPopup,
+    AttributeInspector, FeatureLayer, Graphic, Map, SimpleMarkerSymbol, Query, Draw, Edit, TemplatePicker, editUtils, EditPopup,
     MultipointEditor
     ) {
     //To create a widget, you need to derive from BaseWidget.
@@ -53,6 +54,7 @@ define(
       name: 'MultiPointEditor',
       editToolbar: null,
       drawToolbar: null,
+      attributeEditor: null,
 
       positionInfo: {
         TOP: "18px",
@@ -413,7 +415,12 @@ define(
           }
         }, this);
 
+        console.log("Resulting layer info:", resultLayerInfosParam);
         this.layerInfosParam = resultLayerInfosParam;
+        // this.attributeEditor = new AttributeInspector({
+        //   layerInfos: this.layerInfosParam
+        // }, domConstruct.create("div"));
+
         this.layerInfosParamClone = this._cloneLayerOrTableInfosParam(this.layerInfosParam);
         return resultLayerInfosParam;
       },
@@ -475,6 +482,7 @@ define(
           style: bottomStyle + ";" + topStyle
         }, html.create("div", {}, this.templatePickerDiv));
 
+  
         templatePicker.on("selection-change", lang.hitch(this, function() {
           this.drawToolbar.deactivate();
           
@@ -487,6 +495,10 @@ define(
             var template = selected.template; 
             this.activateDraw(featureLayer);
             console.log("Selected Layer: ", featureLayer.id);      
+
+            // layer.on("graphic-add", lang.hitch(){
+              
+            // })
           }
         }));
 

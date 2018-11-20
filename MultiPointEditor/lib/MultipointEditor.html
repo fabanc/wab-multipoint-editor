@@ -2,21 +2,21 @@
     <fieldset data-dojo-type="dijit/Fieldset">
         <legend>Edit Current Feature</legend>
         <select data-dojo-type="dijit/form/Select" data-dojo-attach-point="cbEditMode">
-            <option value=${viewModel.MOVE}>Move</option>
-            <option value=${viewModel.ADD_VERTEX}>Add Vertex</option>
-            <option value=${viewModel.REMOVE_VERTEX}>Remove Vertex</option>
+            <option value=${viewModel.MOVE}>${nls.move}</option>
+            <option value=${viewModel.ADD_VERTEX}>${nls.addVertices}</option>
+            <option value=${viewModel.REMOVE_VERTEX}>${nls.removeVertices}</option>
         </select>
         <br/>
         <button 
             data-dojo-type="dijit/form/Button" 
             data-dojo-attach-point="btnStopEditingFeature">
-            Stop Editing
+            ${nls.stopEditing}
         </button>
 
         <button 
             data-dojo-type="dijit/form/Button" 
             data-dojo-attach-point="btnDeleteFeature">
-            Delete Feature
+            ${nls.deleteFeature}
         </button>
     </fieldset>
 </div>

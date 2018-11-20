@@ -4,6 +4,7 @@ define(
     "dojo/_base/lang",
     "dojo/on",
     "dojo/_base/Color",
+    'dojo/i18n!./nls/MultipointEditor',
     "dojo/text!./MultipointEditor.html",
     'dijit/_WidgetBase',
     "dijit/_WidgetsInTemplateMixin",
@@ -20,6 +21,7 @@ define(
     lang, 
     on,
     dojoColor,
+    i18n,
     template,
     _WidgetBase,
     _WidgetsInTemplateMixin,
@@ -41,6 +43,7 @@ define(
         layers: [],
         layerClickEvents: [],
         _editableLayersIds: [],
+        nls: i18n,
 
         constructor: function(map){
             this.map = map;
